@@ -2,33 +2,56 @@
 #include <stdlib.h>
 #include <string.h>
 
+char matrix[50][50];
 
-int main()
-{
+int maxX = 0;
+int maxY = 0;
+
+int showBoard();
+
+void initLevel(int level);
+
+int main() {
+    initLevel(1);
     showBoard();
 }
 
-int showBoard(){
-    /*Ouverture du fichier*/
-    FILE* fp = fopen("./level/level1.txt", "r");
-    if (fp == NULL)
-    {
-        printf("Le fichier txt n'a pas pu etre ouvert\n");
-        return EXIT_FAILURE;
-    }
-    printf("Le fichier txt existe\n");
-    /*Fin ouverture*/
+void initLevel(int level) {
+    FILE *file = fopen("level/level1.txt", "r");
 
-    fseek(fp, 0L, SEEK_END);
-    int fsize = ftell(fp);
-    fseek(fp, 0L, SEEK_SET)
-
-    for(int i = 0; i < fsize, i++){
-        for(int j = 0; j<)
+    if (file == NULL) {
+        printf("NULL");
+        return;
     }
 
+    int x = 0;
+    int y = 0;
+    while (!feof(file)) {
+        int ch = fgetc(file);
+        if (ch == '\n') {
+            y++;
+            maxY++;
+        }
+        matrix[x][y] = ch;
+        x++;
+        maxX++;
+        printf("%c", ch);
+    }
 
+    fclose(file);
+}
 
+int showBoard() {
+
+    int row = sizeof(matrix) / sizeof(matrix[0]);
+    for (int i = 0; i < row; ++i) {
+        int column = sizeof(matrix[i]) / (sizeof(matrix) / sizeof(matrix[i]));
+        for (int j = 0; j < column; ++j) {
+            int matrixCase = matrix[i][j];
+
+            printf("%d", matrixCase);
+        }
+        printf("\n");
+    }
     return 0;
-
 }
