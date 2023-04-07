@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-char matrix[50][50];
+int matrix[50][50];
 
-int maxX = 0;
-int maxY = 0;
+int maxX;
+
+int maxY = 1;
 
 int showBoard();
 
@@ -25,17 +26,22 @@ void initLevel(int level) {
     }
 
     int x = 0;
+
     int y = 0;
     while (!feof(file)) {
         int ch = fgetc(file);
         if (ch == '\n') {
             y++;
             maxY++;
+            printf("\n");
+            x = 0;
+            continue;
         }
-        matrix[x][y] = ch;
+        matrix[y][x] = ch;
         x++;
-        maxX++;
-        printf("%c", ch);
+        if(x > maxX){
+            maxX = x;
+        }
     }
 
     fclose(file);
@@ -43,13 +49,11 @@ void initLevel(int level) {
 
 int showBoard() {
 
-    int row = sizeof(matrix) / sizeof(matrix[0]);
-    for (int i = 0; i < row; ++i) {
-        int column = sizeof(matrix[i]) / (sizeof(matrix) / sizeof(matrix[i]));
-        for (int j = 0; j < column; ++j) {
+    for (int i = 0; i < maxY; ++i) {
+        for (int j = 0; j < maxX; ++j) {
             int matrixCase = matrix[i][j];
 
-            printf("%d", matrixCase);
+            printf("%c", matrixCase);
         }
         printf("\n");
     }
