@@ -9,23 +9,49 @@ int maxX;
 
 int maxY = 1;
 
-int showBoard();
+struct Location{
+    int x;
+    int y;
+};
 
-void initLevel(int level);
+struct Color{
+    int textColor;
+    int backgroundColor;
+};
 
-void Color(int couleurDuTexte,int couleurDeFond){
+struct Chains{
+    struct Location locations[50];
+    struct Color color;
+};
+
+struct Player{
+    struct Location location;
+    struct Location lastLocation;
+};
+
+struct SpawnPoint{
+    struct Location spawnPoint;
+};
+
+Player player;
+
+int show_board();
+
+void init_level(int level);
+
+void set_color(struct Color color){
     HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte);
+    SetConsoleTextAttribute(H,color.backgroundColor*16+color.textColor);
 }
 
 
 int main() {
-    initLevel(1);
-    showBoard();
-    moveCase();
+    init_level(1);
+    show_board();
+    game_logic();
 }
 
-void initLevel(int level) {
+void init_level(int level) {
     FILE *file = fopen("level/level1.txt", "r");
 
     if (file == NULL) {
@@ -45,6 +71,12 @@ void initLevel(int level) {
             x = 0;
             continue;
         }
+
+        if(ch == 'X'){
+            spawnPoint[0] = x;
+            spawnPoint[1] = y;
+            continue;
+        }
         matrix[y][x] = ch;
         x++;
         if(x > maxX){
@@ -54,9 +86,8 @@ void initLevel(int level) {
 
     fclose(file);
 }
-int moveCase(){
+int game_logic(){
     char lettre;
-    char startCase[10][10];
     printf("\n\n");
     printf("Entrez une direction (Z, Q, S, D)\n");
     printf("Annuler le coup precedent (B)\n");
@@ -64,27 +95,29 @@ int moveCase(){
     printf("Restart the level (X)\n");
     printf("Changer de chaine (C)\n" );
     scanf("%c", &lettre);
-    for(int i = 0; i < maxX; i++){
-        for(int j = 0; j < maxY; j++){
-            if (matrix[i][j] == 'X'){
-                startCase[i][j] = matrix[i][j];
-            }
-        }
-    }
 
     return 0;
 }
 
-int showBoard() {
+void move(int direction){
+
+    switch (direction) {
+        case 1:
+
+            break;
+    }
+}
+
+int show_board() {
 
     for (int i = 0; i < maxY; ++i) {
         for (int j = 0; j < maxX; ++j) {
             int matrixCase = matrix[i][j];
             if(matrixCase == 'X'){
-                Color(12, 0);
+                set_color(Color{18, 0});
             }
             printf("%c", matrixCase);
-            Color(15, 0);
+            set_color(Color{15, 0});
         }
         printf("\n");
     }
