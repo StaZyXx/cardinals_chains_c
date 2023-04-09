@@ -9,6 +9,8 @@ int maxX;
 
 int maxY = 1;
 
+int amountSpawnPoint = 0;
+
 struct Location{
     int x;
     int y;
@@ -33,7 +35,9 @@ struct SpawnPoint{
     struct Location spawnPoint;
 };
 
-Player player;
+
+struct SpawnPoint spawnPoints[5];
+struct Player player;
 
 int show_board();
 
@@ -43,6 +47,8 @@ void set_color(struct Color color){
     HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(H,color.backgroundColor*16+color.textColor);
 }
+
+void game_logic();
 
 
 int main() {
@@ -73,9 +79,13 @@ void init_level(int level) {
         }
 
         if(ch == 'X'){
-            spawnPoint[0] = x;
-            spawnPoint[1] = y;
-            continue;
+
+            struct SpawnPoint spawnPoint;
+
+            spawnPoint.spawnPoint.x = x;
+            spawnPoint.spawnPoint.y = y;
+            spawnPoints[amountSpawnPoint] = spawnPoint;
+            amountSpawnPoint++;
         }
         matrix[y][x] = ch;
         x++;
@@ -86,7 +96,8 @@ void init_level(int level) {
 
     fclose(file);
 }
-int game_logic(){
+
+void game_logic(){
     char lettre;
     printf("\n\n");
     printf("Entrez une direction (Z, Q, S, D)\n");
@@ -96,7 +107,6 @@ int game_logic(){
     printf("Changer de chaine (C)\n" );
     scanf("%c", &lettre);
 
-    return 0;
 }
 
 void move(int direction){
@@ -114,10 +124,18 @@ int show_board() {
         for (int j = 0; j < maxX; ++j) {
             int matrixCase = matrix[i][j];
             if(matrixCase == 'X'){
-                set_color(Color{18, 0});
+                struct Color color;
+                color.textColor = 18;
+                color.backgroundColor = 0;
+                set_color(color);
+                printf("X");
+                continue;
             }
+            struct Color color;
+            color.textColor = 15;
+            color.backgroundColor = 0;
+            set_color(color);
             printf("%c", matrixCase);
-            set_color(Color{15, 0});
         }
         printf("\n");
     }
