@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 int matrix[50][50];
 
@@ -12,9 +13,16 @@ int showBoard();
 
 void initLevel(int level);
 
+void Color(int couleurDuTexte,int couleurDeFond){
+    HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte);
+}
+
+
 int main() {
     initLevel(1);
     showBoard();
+    moveCase();
 }
 
 void initLevel(int level) {
@@ -46,16 +54,41 @@ void initLevel(int level) {
 
     fclose(file);
 }
+int moveCase(){
+    char lettre;
+    char startCase[10][10];
+    printf("\n\n");
+    printf("Entrez une direction (Z, Q, S, D)\n");
+    printf("Annuler le coup precedent (B)\n");
+    printf("Effacer la chaine (R)\n");
+    printf("Restart the level (X)\n");
+    printf("Changer de chaine (C)\n" );
+    scanf("%c", &lettre);
+    for(int i = 0; i < maxX; i++){
+        for(int j = 0; j < maxY; j++){
+            if (matrix[i][j] == 'X'){
+                startCase[i][j] = matrix[i][j];
+            }
+        }
+    }
+
+    return 0;
+}
 
 int showBoard() {
 
     for (int i = 0; i < maxY; ++i) {
         for (int j = 0; j < maxX; ++j) {
             int matrixCase = matrix[i][j];
-
+            if(matrixCase == 'X'){
+                Color(12, 0);
+            }
             printf("%c", matrixCase);
+            Color(15, 0);
         }
         printf("\n");
     }
     return 0;
 }
+
+

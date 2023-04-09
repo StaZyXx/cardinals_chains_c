@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1681041705 source:c:\users\quent\onedrive\documents\bachelor _engineering_1\14.developer c\projet\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<windows.h>
+
