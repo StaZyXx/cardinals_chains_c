@@ -156,7 +156,6 @@ bool is_finished() {
             struct Case matrixCase = matrix[i][j];
 
             if(!matrixCase.isCase)continue;
-            printf("%d", matrixCase.caseChar);
             if (!matrixCase.hasChains && matrixCase.caseChar != -1 && matrixCase.caseChar != 32){
                 return false;
             }
@@ -212,9 +211,11 @@ void game_logic() {
         if(is_finished()){
             level++;
             memset(matrix, 0, sizeof(matrix[0][0]) * 50 * 50);
+            memset(player.chains, 0, sizeof(player.chains));
+            maxX = 0;
+            maxY = 1;
             init_level(level);
         }
-        sleep(1);
 
     }
 
