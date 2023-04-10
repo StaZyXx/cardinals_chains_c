@@ -87,7 +87,6 @@ void init_level(int level) {
     }
 
     int x = 0;
-
     int y = 0;
     while (!feof(file)) {
         int ch = fgetc(file);
@@ -168,10 +167,14 @@ void game_logic() {
             if (amountSpawnPoint == 1){
                 printf("Nombre de chaines insuffisant\n");
             }
-            else{
-                player.currentChains = 2;
+            /*else if (player.currentChains == 2){
+                player.[player.currentChains] = 1;
             }
+            else{
+                player.chains[player.currentChains] = 2;
+            }*/
         }
+
         if (lettre == 'x'){
             init_level(level);
         }
