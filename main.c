@@ -73,7 +73,7 @@ void game_logic();
 
 
 int main() {
-    init_level(1);
+    init_level(level);
     game_logic();
 }
 
@@ -176,8 +176,8 @@ void game_logic() {
         printf("Restart the level (X)\n");
         printf("Changer de chaine (C)\n");
 
-
         scanf("%c", &lettre);
+
 
         if (lettre == 'b') {
             matrix[player.location.x][player.location.y].hasChains = false;
@@ -195,12 +195,26 @@ void game_logic() {
         if (lettre == 'c') {
             if (amountSpawnPoint == 1) {
                 printf("Nombre de chaines insuffisant\n");
-            } else if (player.currentChains == 1) {
+            }
+
+            else if (player.currentChains == 1) {
+                player.chains[1].lastLocation.x = player.location.x;
+                player.chains[1].lastLocation.y = player.location.y;
                 player.currentChains = 0;
-                player.location = player.chains[0].lastLocation;
-            } else {
+
+                struct Location chainLocation = player.chains[0].lastLocation;
+                player.location.x = chainLocation.y;
+                player.location.y = chainLocation.x;
+
+            }
+
+            else {
+                player.chains[0].lastLocation.x = player.location.x;
+                player.chains[0].lastLocation.y = player.location.y;
                 player.currentChains = 1;
-                player.location = player.chains[1].lastLocation;
+                struct Location chainLocation = player.chains[1].lastLocation;
+                player.location.x = chainLocation.y;
+                player.location.y = chainLocation.x;
             }
         }
 
@@ -211,44 +225,82 @@ void game_logic() {
         if(is_finished()){
             level++;
             memset(matrix, 0, sizeof(matrix[0][0]) * 50 * 50);
-            memset(player.chains, 0, sizeof(player.chains));
-            maxX = 0;
-            maxY = 1;
             init_level(level);
         }
-
     }
 
 }
 
 bool can_move(char direction) {
+
     struct Case c;
     switch (direction) {
         case 'z':
             c = matrix[player.location.x - 1][player.location.y];
 
-            if (player.location.x >= 0 && !c.hasChains && c.isCase) {
+            int caseNumber = -1;
+            int playerNumber = -1;
+
+            if (isdigit(c.caseChar)) {
+                caseNumber = c.caseChar - '0';
+            }
+            if (isdigit(matrix[player.location.x][player.location.y].caseChar)){
+                playerNumber = matrix[player.location.x][player.location.y].caseChar - '0';
+            }
+
+            if ((player.location.x >= 0 && !c.hasChains && c.isCase && playerNumber <= caseNumber) || (matrix[player.location.x][player.location.y].caseChar == 48 && c.isCase)) {
                 return true;
             }
             return false;
 
         case 'q':
             c = matrix[player.location.x][player.location.y - 1];
-            if (player.location.y - 1 >= 0 && !c.hasChains && c.isCase) {
+
+
+            caseNumber = -1;
+            playerNumber = -1;
+
+            if (isdigit(c.caseChar)) {
+                caseNumber = c.caseChar - '0';
+            }
+            if (isdigit(matrix[player.location.x][player.location.y].caseChar)){
+                playerNumber = matrix[player.location.x][player.location.y].caseChar - '0';
+            }
+            if ((player.location.y - 1 >= 0 && !c.hasChains && c.isCase && playerNumber <= caseNumber) || (matrix[player.location.x][player.location.y].caseChar == 48 && c.isCase)) {
                 return true;
             }
             return false;
 
         case 'd':
             c = matrix[player.location.x][player.location.y + 1];
-            if (player.location.y + 1 < maxX && !c.hasChains && c.isCase) {
+
+            caseNumber = -1;
+            playerNumber = -1;
+
+            if (isdigit(c.caseChar)) {
+                caseNumber = c.caseChar - '0';
+            }
+            if (isdigit(matrix[player.location.x][player.location.y].caseChar)){
+                playerNumber = matrix[player.location.x][player.location.y].caseChar - '0';
+            }
+            if ((player.location.y + 1 < maxX && !c.hasChains && c.isCase && playerNumber <= caseNumber) || (matrix[player.location.x][player.location.y].caseChar == 48 && c.isCase) ) {
                 return true;
             }
             return false;
 
         case 's':
             c = matrix[player.location.x + 1][player.location.y];
-            if (player.location.x + 1 < maxY && !c.hasChains && c.isCase) {
+
+            caseNumber = -1;
+            playerNumber = -1;
+
+            if (isdigit(c.caseChar)) {
+                caseNumber = c.caseChar - '0';
+            }
+            if (isdigit(matrix[player.location.x][player.location.y].caseChar)){
+                playerNumber = matrix[player.location.x][player.location.y].caseChar - '0';
+            }
+            if ((player.location.x + 1 < maxY && !c.hasChains && c.isCase && playerNumber <= caseNumber) || (matrix[player.location.x][player.location.y].caseChar == 48 && c.isCase)) {
                 return true;
             }
             return false;
@@ -337,7 +389,6 @@ int show_board() {
                     }
                 }
             }
-
             color.textColor = -1;
             set_color(color);
             printf("%c", matrixCase.caseChar);
@@ -347,14 +398,3 @@ int show_board() {
 
     return 0;
 }
-
-
-/*
- * TODO :
- * - Quand un joueur ce déplace faut checker ça chains avec le currentChains et ajouter la location dans chains et checker le montant de spawnPoints,
- * - y'a déjà une variable amountSpawnPoints
- * - player.chains[player.currentChains] -> pour récupérer
- *
- * - Changer le boolean de hasChains
- * - Afficher un background différent (j'ai mis une couleur sur chains)
- */
