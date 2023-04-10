@@ -175,6 +175,7 @@ void game_logic() {
         printf("Effacer la chaine (R)\n");
         printf("Restart the level (X)\n");
         printf("Changer de chaine (C)\n");
+        printf(">");
 
         scanf("%c", &lettre);
 
@@ -351,7 +352,7 @@ void move(char direction) {
 }
 
 int show_board() {
-
+    system("cls");
 
     for (int i = 0; i < maxY; ++i) {
         for (int j = 0; j < maxX; ++j) {
@@ -396,6 +397,7 @@ int show_board() {
             printf("%c", matrixCase.caseChar);
         }
         printf("\n");
+
     }
 
     return 0;
