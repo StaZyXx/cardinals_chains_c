@@ -32,10 +32,11 @@ struct Case {
 
 struct Chains {
     int spawnPoints;
-    struct Location locations[50];
-    struct Color color;
 
     struct Location lastLocation;
+    int amountLocations;
+    struct Location locations[50];
+    struct Color color;
 };
 
 struct Player {
@@ -54,7 +55,7 @@ struct SpawnPoint {
 struct Case matrix[50][50];
 
 
-struct SpawnPoint spawnPoints[5];
+struct SpawnPoint spawnPoints[2];
 struct Player player;
 
 int show_board();
@@ -72,11 +73,12 @@ void game_logic();
 
 
 int main() {
-    init_level(level);
+    init_level(1);
     game_logic();
 }
 
 void init_level(int level) {
+
     char filename[20];
     sprintf(filename, "level/level%d.txt", level);
     FILE *file = fopen(filename, "r");
@@ -103,12 +105,12 @@ void init_level(int level) {
 
             struct SpawnPoint spawnPoint;
 
-            spawnPoint.spawnPoint.x = x;
-            spawnPoint.spawnPoint.y = y;
+            spawnPoint.spawnPoint.x = y;
+            spawnPoint.spawnPoint.y = x;
             spawnPoints[amountSpawnPoint] = spawnPoint;
             amountSpawnPoint++;
-            player.location.x = x;
-            player.location.y = y;
+            player.location.x = y;
+            player.location.y = x;
         }
         struct Case c;
 
@@ -119,11 +121,31 @@ void init_level(int level) {
         c.hasChains = false;
         c.caseChar = ch;
         matrix[y][x] = c;
+        if(ch == 'X'){
+            matrix[y][x].hasChains = true;
+        }
         x++;
         if (x > maxX) {
             maxX = x;
         }
     }
+
+    player.currentChains = 0;
+
+
+    struct Chains chains1;
+    chains1.amountLocations = 0;
+    chains1.spawnPoints = 0;
+    chains1.color.backgroundColor = 8;
+    chains1.lastLocation = spawnPoints[0].spawnPoint;
+    player.chains[0] = chains1;
+    struct Chains chains2;
+    chains2.amountLocations = 0;
+    chains2.spawnPoints = 1;
+    chains2.lastLocation = spawnPoints[1].spawnPoint;
+    player.chains[1] = chains2;
+
+
     fclose(file);
 }
 
@@ -133,10 +155,12 @@ bool is_finished() {
         for (int j = 0; j < maxX; ++j) {
             struct Case matrixCase = matrix[i][j];
 
-            if (!matrixCase.hasChains) return false;
+            if(!matrixCase.isCase)continue;
+            if (!matrixCase.hasChains && matrixCase.caseChar != -1 && matrixCase.caseChar != 32){
+                return false;
+            }
         }
     }
-    level++;
     return true;
 }
 
@@ -155,27 +179,37 @@ void game_logic() {
 
         scanf("%c", &lettre);
 
+        if (lettre == 'b') {
+            matrix[player.location.x][player.location.y].hasChains = false;
+            struct Chains chain = player.chains[player.currentChains];
+            chain.locations[chain.amountLocations].x = -1;
+            chain.locations[chain.amountLocations].y = -1;
+            player.location = player.lastLocation;
+        }
+
         if (lettre == 'z' || lettre == 'q' || lettre == 's' || lettre == 'd') {
             move(lettre);
         }
 
-        if (lettre == 'b') {
-            player.location = player.lastLocation;
-        }
-        struct SpawnPoint spawnPoint;
-        if (lettre == 'c'){
-            if (amountSpawnPoint == 1){
+
+        if (lettre == 'c') {
+            if (amountSpawnPoint == 1) {
                 printf("Nombre de chaines insuffisant\n");
+            } else if (player.currentChains == 1) {
+                player.currentChains = 0;
+                player.location = player.chains[0].lastLocation;
+            } else {
+                player.currentChains = 1;
+                player.location = player.chains[1].lastLocation;
             }
-            /*else if (player.currentChains == 2){
-                player.[player.currentChains] = 1;
-            }
-            else{
-                player.chains[player.currentChains] = 2;
-            }*/
         }
 
-        if (lettre == 'x'){
+        if (lettre == 'x') {
+            init_level(level);
+        }
+
+        if(is_finished()){
+            level++;
             init_level(level);
         }
         sleep(1);
@@ -189,6 +223,7 @@ bool can_move(char direction) {
     switch (direction) {
         case 'z':
             c = matrix[player.location.x - 1][player.location.y];
+
             if (player.location.x >= 0 && !c.hasChains && c.isCase) {
                 return true;
             }
@@ -196,21 +231,21 @@ bool can_move(char direction) {
 
         case 'q':
             c = matrix[player.location.x][player.location.y - 1];
-            if (player.location.y - 1 >= 0 && c.isCase) {
+            if (player.location.y - 1 >= 0 && !c.hasChains && c.isCase) {
                 return true;
             }
             return false;
 
         case 'd':
             c = matrix[player.location.x][player.location.y + 1];
-            if (player.location.y +2 < maxX && !c.hasChains && c.isCase) {
+            if (player.location.y + 1 < maxX && !c.hasChains && c.isCase) {
                 return true;
             }
             return false;
 
         case 's':
             c = matrix[player.location.x + 1][player.location.y];
-            if (player.location.x + 2 < maxY -1 && !c.hasChains && c.isCase) {
+            if (player.location.x + 1 < maxY && !c.hasChains && c.isCase) {
                 return true;
             }
             return false;
@@ -224,41 +259,52 @@ void move(char direction) {
         printf("\nERREUR\n");
         return;
     }
-
     switch (direction) {
         case 'z':
             player.lastLocation = player.location;
             player.location.x--;
+            matrix[player.location.x][player.location.y].hasChains = true;
+            player.chains[player.currentChains].locations[player.chains[player.currentChains].amountLocations] = player.location;
+            player.chains[player.currentChains].amountLocations += 1;
             break;
         case 'q':
             player.lastLocation = player.location;
             player.location.y--;
+            matrix[player.location.x][player.location.y].hasChains = true;
+            player.chains[player.currentChains].locations[player.chains[player.currentChains].amountLocations] = player.location;
+            player.chains[player.currentChains].amountLocations += 1;
             break;
         case 'd':
             player.lastLocation = player.location;
             player.location.y++;
+            matrix[player.location.x][player.location.y].hasChains = true;
+            player.chains[player.currentChains].locations[player.chains[player.currentChains].amountLocations] = player.location;
+            player.chains[player.currentChains].amountLocations += 1;
             break;
         case 's':
             player.lastLocation = player.location;
             player.location.x++;
+            matrix[player.location.x][player.location.y].hasChains = true;
+            player.chains[player.currentChains].locations[player.chains[player.currentChains].amountLocations] = player.location;
+            player.chains[player.currentChains].amountLocations += 1;
             break;
     }
+
+
 }
 
 int show_board() {
-    struct Color color;
+
+
     for (int i = 0; i < maxY; ++i) {
         for (int j = 0; j < maxX; ++j) {
             struct Case matrixCase = matrix[i][j];
+            struct Color color;
 
-            if (matrixCase.hasChains == true) {
-                color.backgroundColor = 18;
-                color.textColor = -1;
-                set_color(color);
-                continue;
-            }
+            color.backgroundColor = 1;
+
+
             if (player.location.x == i && player.location.y == j) {
-                color.backgroundColor = 18;
                 color.textColor = -1;
                 set_color(color);
                 printf("P");
@@ -273,13 +319,29 @@ int show_board() {
                 continue;
             }
 
-            color.backgroundColor = 1;
+            if (matrixCase.hasChains == true) {
+                for (int k = 0; k < 2; ++k) {
+                    struct Chains chain = player.chains[k];
+                    for (int l = 0; l < chain.amountLocations; ++l) {
+                        struct Location location = chain.locations[l];
+
+                        if (i == location.x && j == location.y) {
+                            color.backgroundColor = chain.color.backgroundColor;
+                            set_color(color);
+                            continue;
+                        }
+
+                    }
+                }
+            }
+
             color.textColor = -1;
             set_color(color);
             printf("%c", matrixCase.caseChar);
         }
         printf("\n");
     }
+
     return 0;
 }
 
