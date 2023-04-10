@@ -225,6 +225,8 @@ void game_logic() {
         if(is_finished()){
             level++;
             memset(matrix, 0, sizeof(matrix[0][0]) * 50 * 50);
+            maxX = 0;
+            maxY = 1;
             init_level(level);
         }
     }
